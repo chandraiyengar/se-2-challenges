@@ -7,9 +7,43 @@ import "./ExampleExternalContract.sol";
 contract Staker {
 
   ExampleExternalContract public exampleExternalContract;
+  mapping ( address => uint256 ) public balances;
+  uint256 public constant threshold = 1 ether;
+  event Stake(address indexed staker, uint256 amount);
+  uint256 public deadline = block.timestamp + 30 seconds;
+  bool public openForWithdraw;
+
 
   constructor(address exampleExternalContractAddress) {
       exampleExternalContract = ExampleExternalContract(exampleExternalContractAddress);
+  }
+
+  function stake() public payable {
+    balances[msg.sender] += msg.value;
+    emit Stake(msg.sender, msg.value);
+  }
+
+  function execute() public {
+    if (block.timestamp >= deadline) {
+      if (address(this).balance > threshold) {
+        exampleExternalContract.complete{value: address(this).balance}();
+      }
+      else {
+        openForWithdraw = true;
+      }
+    }
+  }
+
+  function withdraw() public {
+    if (openForWithdraw == true) {
+      payable(msg.sender).transfer(balances[msg.sender]);
+      balances[msg.sender] = 0;
+    }
+  }
+
+  function timeLeft() public view returns (uint256) {
+    if (deadline > block.timestamp) return deadline - block.timestamp;
+    else return 0;
   }
 
   // Collect funds in a payable `stake()` function and track individual `balances` with a mapping:
