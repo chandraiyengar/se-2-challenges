@@ -22,7 +22,8 @@ contract Staker {
     stake();
   }
 
-  function stake() public payable {
+  function stake() public payable notCompleted {
+    // if (exampleExternalContract.completed) return;
     balances[msg.sender] += msg.value;
     emit Stake(msg.sender, msg.value);
   }
@@ -48,6 +49,14 @@ contract Staker {
   function timeLeft() public view returns (uint256) {
     if (deadline > block.timestamp) return deadline - block.timestamp;
     else return 0;
+  }
+
+  modifier notCompleted {
+    require(
+      !exampleExternalContract.completed(),
+      "Contract is completed!"
+    );
+    _;
   }
 
   // Collect funds in a payable `stake()` function and track individual `balances` with a mapping:
