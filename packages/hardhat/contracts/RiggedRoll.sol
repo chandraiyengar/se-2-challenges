@@ -33,6 +33,10 @@ contract RiggedRoll is Ownable {
       }
     }
 
+    function withdraw(address _addr, uint256 _amount) public {
+      payable(_addr).transfer(_amount);
+    }
+
 
     // Implement the `withdraw` function to transfer Ether from the rigged contract to a specified address.
 
