@@ -33,7 +33,7 @@ contract RiggedRoll is Ownable {
       }
     }
 
-    function withdraw(address _addr, uint256 _amount) public {
+    function withdraw(address _addr, uint256 _amount) public onlyOwner {
       payable(_addr).transfer(_amount);
     }
 
